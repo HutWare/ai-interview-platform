@@ -28,6 +28,11 @@ module Portfolios
         generation_status: 'pending'
       )
 
+      if portfolio.complete?
+        Rails.logger.info("[N10] Portfolio for session #{@session.id} already complete, skipping")
+        return portfolio
+      end
+
       portfolio.update!(generation_status: 'generating')
 
       prompt   = build_prompt
