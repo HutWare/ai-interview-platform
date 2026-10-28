@@ -150,8 +150,14 @@ module FitGap
       gaps    = comparisons.count { |c| c[:result] == 'gap' }
       matches = comparisons.count { |c| c[:result] == 'match' }
       exceeds = comparisons.count { |c| c[:result] == 'exceed' }
+      not_assessed = comparisons.count { |c| c[:result] == 'not_assessed' }
 
-      "Candidate shows #{matches} skill matches, #{exceeds} exceeds, and #{gaps} gaps against role requirements."
+      summary = "Candidate shows #{matches} skill matches, #{exceeds} exceeds, and #{gaps} gaps against role requirements."
+      return summary if not_assessed.zero?
+
+      # Without this, "0 gaps" reads as a clean result when most skills were never measured.
+      verb = not_assessed == 1 ? 'skill was' : 'skills were'
+      "#{summary} #{not_assessed} required #{verb} not assessed in this interview."
     end
   end
 end

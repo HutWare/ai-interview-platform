@@ -24,7 +24,7 @@ function ResultBadge({ comparison }: { comparison: SkillComparison }) {
   else if (comparison.result === "gap") { icon = "⚠"; suffix = comparison.delta ? ` -${Math.abs(comparison.delta)}` : ""; }
 
   return (
-    <span className={cn("inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded", classes)}>
+    <span className={cn("inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-xs font-medium px-2 py-0.5 rounded", classes)}>
       {icon} {label}{suffix}
     </span>
   );
@@ -47,7 +47,7 @@ function CandidateLevel({ comparison }: { comparison: SkillComparison }) {
       )}
       {comparison.low_confidence && (
         <span
-          className="text-xs font-medium text-amber-700 border border-amber-300 rounded px-1.5 py-0.5"
+          className="whitespace-nowrap text-xs font-medium text-amber-700 border border-amber-300 rounded px-1.5 py-0.5"
           title="Based on little interview evidence. Review before deciding."
         >
           Low confidence
