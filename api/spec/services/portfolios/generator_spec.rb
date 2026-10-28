@@ -56,6 +56,18 @@ RSpec.describe Portfolios::Generator do
       expect(saved_labels(portfolio)).to eq(['React'])
     end
 
+    it 'rejects a fractional level instead of truncating it' do
+      portfolio = generate('configured_skills' => [skill('React'), skill('Go', level: 2.5)])
+
+      expect(saved_labels(portfolio)).to eq(['React'])
+    end
+
+    it 'accepts a whole-number level sent as a string' do
+      portfolio = generate('configured_skills' => [skill('React', level: '4')])
+
+      expect(portfolio.portfolio_skills.first.ai_level).to eq(4)
+    end
+
     it 'falls back to low confidence for an unknown confidence value' do
       portfolio = generate('configured_skills' => [skill('React', confidence: 'very sure')])
 
