@@ -62,7 +62,9 @@ module FitGap
           expected_level:  expected_level,
           result:          result,
           delta:           delta,
-          confidence:      portfolio_skill&.dig(:confidence)
+          confidence:      portfolio_skill&.dig(:confidence),
+          is_override:     portfolio_skill ? portfolio_skill[:overridden] : false,
+          low_confidence:  low_confidence?(portfolio_skill)
         }
       end
 
@@ -83,6 +85,12 @@ module FitGap
           overridden:      override.present?
         }
       end
+    end
+
+    # True when the level comes from the model alone and rests on thin evidence.
+    # A level an assessor set by hand is never flagged: a person already reviewed it.
+    def low_confidence?(portfolio_skill)
+      portfolio_skill.present? && !portfolio_skill[:overridden] && portfolio_skill[:confidence].to_s == 'low'
     end
 
     def find_portfolio_skill(portfolio_skills, label, skill_id)
