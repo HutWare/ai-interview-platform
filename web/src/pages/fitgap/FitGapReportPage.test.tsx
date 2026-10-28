@@ -127,4 +127,42 @@ describe("FitGapReportPage", () => {
 
     expect(await screen.findByText("No portfolio yet")).toBeInTheDocument();
   });
+
+  it("links to the portfolio page when the portfolio failed", async () => {
+    getPortfolio.mockResolvedValue(portfolio("failed") as any);
+    renderPage();
+
+    const link = await screen.findByRole("link", { name: "Open the portfolio page" });
+    expect(link).toHaveAttribute("href", "/assessments/1/sessions/1/portfolio");
+  });
+
+  it("labels a discovered skill with its level and the confidence the model gave", async () => {
+    getPortfolio.mockResolvedValue({
+      data: {
+        portfolio: {
+          id: 7, session_id: 1, generation_status: "complete", overrides: [],
+          skills: [{
+            id: 11, skill_label: "Figma prototyping", is_discovered: true, ai_level: 3,
+            ai_confidence: "medium", evidence: [], competency_summary: "Prototypes before coding.",
+          }],
+        },
+      },
+    } as any);
+    getFitGap.mockResolvedValue(report as any);
+    renderPage();
+
+    expect(await screen.findByText("L3 · medium confidence")).toBeInTheDocument();
+    expect(screen.queryByText(/confirmed/)).not.toBeInTheDocument();
+  });
+
+  it("says so when an export fails instead of doing nothing", async () => {
+    getFitGap.mockResolvedValue(report as any);
+    vi.mocked(portfoliosApi.exportPortfolio).mockRejectedValue({ response: { status: 500 } });
+    renderPage();
+    await screen.findByText("Works well in small teams.");
+
+    await userEvent.click(screen.getByRole("button", { name: "PDF" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("PDF export could not be created");
+  });
 });

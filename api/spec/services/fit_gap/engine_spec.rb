@@ -89,6 +89,18 @@ RSpec.describe FitGap::Engine do
     expect(report.overall_narrative).to include('1 skill matches')
   end
 
+  it 'says in the fallback summary how many required skills were not assessed' do
+    candidate_skill('Ruby', level: 3)
+    required_skill('Ruby', 3)
+    required_skill('Kafka', 3)
+    required_skill('Docker', 2)
+    allow(client).to receive(:generate_content).and_raise(StandardError, 'model timeout')
+
+    report = described_class.new(portfolio: portfolio, vacancy: vacancy, gemini_client: client).call
+
+    expect(report.overall_narrative).to include('2 required skills were not assessed')
+  end
+
   it 'updates the existing report when it runs twice for the same pair' do
     candidate_skill('Ruby', level: 3)
     required_skill('Ruby', 3)
