@@ -198,7 +198,7 @@ module Portfolios
     def skill_row(skill_data, discovered:)
       return nil unless skill_data.is_a?(Hash)
 
-      level   = Integer(skill_data['level'], exception: false)
+      level   = parse_level(skill_data['level'])
       label   = skill_data['skill_label'].to_s.strip
       summary = skill_data['competency_summary'].to_s.strip
       return nil unless level&.between?(1, 5) && label.present? && summary.present?
@@ -215,6 +215,15 @@ module Portfolios
         evidence:           Array(skill_data['evidence']).map { |quote| quote.to_s.strip }.reject(&:empty?).first(3),
         competency_summary: summary
       }
+    end
+
+    # Accepts a whole number, as a number or a string ("4"). Anything else, including 2.5,
+    # is a malformed answer from the model: truncating it to 2 would invent a level.
+    def parse_level(value)
+      case value
+      when Integer then value
+      when String  then Integer(value.strip, 10, exception: false)
+      end
     end
 
     # Runs inside the transaction in #call. Only reached for a portfolio that is not complete,
